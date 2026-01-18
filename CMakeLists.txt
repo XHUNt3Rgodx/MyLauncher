@@ -8,7 +8,7 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
 
-add_executable(MyLauncher
+add_executable(MyLauncher MACOSX_BUNDLE
     main.cpp
     launcher.cpp
     launcher.h
