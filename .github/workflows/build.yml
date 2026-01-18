@@ -28,8 +28,8 @@ jobs:
           export PKG_CONFIG_PATH="/opt/homebrew/opt/qt@6/lib/pkgconfig"
           echo "Qt environment set"
 
-      # 4. Конфигурируем проект через CMake (Xcode generator)
-      - name: Configure CMake
+      # 4. Конфигурируем проект через CMake с Xcode генератором
+      - name: Configure CMake (Xcode)
         run: |
           mkdir -p build
           cd build
@@ -40,19 +40,24 @@ jobs:
         run: |
           cmake --build build --config Release
 
-      # 6. Деплойим Qt фреймворки в .app через macdeployqt
+      # 6. Проверяем, что .app создан
+      - name: List build/Release
+        run: |
+          ls -la build/Release/
+
+      # 7. Деплойим Qt фреймворки в .app через macdeployqt
       - name: Deploy Qt into MyLauncher.app
         run: |
           cd build/Release
           macdeployqt MyLauncher.app -verbose=3
 
-      # 7. Проверяем, что все фреймворки подключены
+      # 8. Проверяем, что все фреймворки подключены
       - name: Check linked frameworks
         run: |
           cd build/Release
           otool -L MyLauncher.app/Contents/MacOS/MyLauncher
 
-      # 8. Загружаем готовый .app как артефакт
+      # 9. Загружаем готовый .app как артефакт
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
