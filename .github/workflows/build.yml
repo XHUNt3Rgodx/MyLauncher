@@ -3,25 +3,25 @@ name: Build MyLauncher (.app with online Qt)
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build-mac:
     runs-on: macos-latest
 
     steps:
-      # 1. Checkout
+      # 1. Checkout code
       - uses: actions/checkout@v4
 
-      # 2. Download Qt SDK (пример: Qt 6.6.2 clang_64)
+      # 2. Download Qt SDK (tar.xz) and extract
       - name: Download Qt SDK
         run: |
           mkdir -p ThirdParty/Qt
           cd ThirdParty/Qt
-          curl -L -o qt6.tar.xz https://download.qt.io/official_releases/qt/6.6/6.6.2/qt-opensource-mac-x64-6.6.2.dmg
-          # Преобразуем dmg в mount
-          hdiutil attach qt-opensource-mac-x64-6.6.2.dmg
-          cp -R /Volumes/Qt/Qt/6.6.2/clang_64 ./clang_64
-          hdiutil detach /Volumes/Qt
+          curl -L -o qt6.tar.xz https://download.qt.io/official_releases/qt/6.6/6.6.2/qt-opensource-mac-x64-6.6.2.tar.xz
+          tar -xf qt6.tar.xz
+          ls -la
 
       # 3. Set Qt environment
       - name: Setup Qt environment
@@ -29,26 +29,37 @@ jobs:
           export Qt6_DIR="${GITHUB_WORKSPACE}/ThirdParty/Qt/clang_64/lib/cmake/Qt6"
           export PATH="${GITHUB_WORKSPACE}/ThirdParty/Qt/clang_64/bin:$PATH"
           echo "Qt environment set"
+          which qmake
+          qmake --version
 
       # 4. Configure CMake with Xcode generator
       - name: Configure CMake
         run: |
           mkdir -p build
           cd build
-          cmake -G Xcode -DCMAKE_PREFIX_PATH="${Qt6_DIR}" -DCMAKE_OSX_ARCHITECTURES=arm64 ..
+          cmake -G Xcode \
+            -DCMAKE_PREFIX_PATH="${Qt6_DIR}" \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 ..
 
       # 5. Build MyLauncher
       - name: Build MyLauncher
         run: |
           cmake --build build --config Release
 
-      # 6. Deploy Qt into .app
+      # 6. Deploy Qt into .app using macdeployqt
       - name: Deploy Qt
         run: |
           cd build/Release
           "${GITHUB_WORKSPACE}/ThirdParty/Qt/clang_64/bin/macdeployqt" MyLauncher.app -verbose=3
 
-      # 7. Upload artifact
+      # 7. List contents to verify
+      - name: Verify .app
+        run: |
+          ls -la build/Release/
+          file build/Release/MyLauncher.app/Contents/MacOS/MyLauncher
+          otool -L build/Release/MyLauncher.app/Contents/MacOS/MyLauncher
+
+      # 8. Upload .app as artifact
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
