@@ -11,10 +11,7 @@ public:
     explicit Launcher(QWidget *parent = nullptr);
     ~Launcher();
 
-signals:
-    void startGame();
-
-public slots:
+private slots:
     void onStartClicked();
 };
 
