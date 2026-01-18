@@ -1,4 +1,4 @@
-name: Build MyLauncher (.app with online Qt)
+name: Build MyLauncher (.app with embedded Qt)
 
 on:
   push:
@@ -14,14 +14,12 @@ jobs:
       # 1. Checkout code
       - uses: actions/checkout@v4
 
-      # 2. Download Qt SDK (tar.xz) and extract
-      - name: Download Qt SDK
+      # 2. Extract Qt from local archive
+      - name: Extract Qt SDK
         run: |
           mkdir -p ThirdParty/Qt
-          cd ThirdParty/Qt
-          curl -L -o qt6.tar.xz https://download.qt.io/official_releases/qt/6.6/6.6.2/qt-opensource-mac-x64-6.6.2.tar.xz
-          tar -xf qt6.tar.xz
-          ls -la
+          tar -xf ThirdParty/Qt/qt6-clang_64.tar.xz -C ThirdParty/Qt
+          ls -la ThirdParty/Qt
 
       # 3. Set Qt environment
       - name: Setup Qt environment
@@ -46,13 +44,13 @@ jobs:
         run: |
           cmake --build build --config Release
 
-      # 6. Deploy Qt into .app using macdeployqt
+      # 6. Deploy Qt into .app
       - name: Deploy Qt
         run: |
           cd build/Release
           "${GITHUB_WORKSPACE}/ThirdParty/Qt/clang_64/bin/macdeployqt" MyLauncher.app -verbose=3
 
-      # 7. List contents to verify
+      # 7. Verify .app
       - name: Verify .app
         run: |
           ls -la build/Release/
@@ -63,5 +61,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
+          name: MyLauncher-mac
+          path: build/Release/MyLauncher.app
+
           name: MyLauncher-mac
           path: build/Release/MyLauncher.app
