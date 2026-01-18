@@ -12,7 +12,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Qt
-        run: brew install qt
+        run: |
+          brew update
+          brew install qt qt-svg qt-pdf qt-virtualkeyboard
 
       - name: Configure with Xcode
         run: cmake -S . -B build -G Xcode
