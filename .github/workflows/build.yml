@@ -1,4 +1,4 @@
-name: Build MyLauncher (macOS)
+name: Build MyLauncher (macOS Full Qt)
 
 on:
   push:
@@ -11,19 +11,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Qt
+      - name: Install Qt dependencies
         run: |
           brew update
           brew install qt qtsvg qpdf qtvirtualkeyboard
 
-      - name: Configure with Xcode
-        run: cmake -S . -B build -G Xcode
+      - name: Configure CMake
+        run: |
+          mkdir -p build
+          cd build
+          cmake -G Xcode ..
 
-      - name: Build app
-        run: cmake --build build --config Release
+      - name: Build MyLauncher
+        run: |
+          cmake --build build --config Release
 
-      - name: Deploy Qt
-        run: macdeployqt build/Release/MyLauncher.app
+      - name: Deploy Qt into MyLauncher.app
+        run: |
+          macdeployqt build/Release/MyLauncher.app
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
