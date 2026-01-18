@@ -1,4 +1,4 @@
-name: Build NozdorLauncher
+name: Build MyLauncher
 
 on:
   push:
@@ -23,5 +23,5 @@ jobs:
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NozdorLauncher-mac
-          path: build/NozdorLauncher.app
+          name: MyLauncher-mac
+          path: build/MyLauncher.app
