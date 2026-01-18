@@ -20,8 +20,6 @@ set_target_properties(MyLauncher PROPERTIES
     MACOSX_BUNDLE TRUE
     MACOSX_BUNDLE_GUI_IDENTIFIER com.mylauncher.app
     MACOSX_BUNDLE_BUNDLE_NAME MyLauncher
-    MACOSX_BUNDLE_SHORT_VERSION_STRING 1.0
-    MACOSX_BUNDLE_BUNDLE_VERSION 1.0
 )
 
 target_link_libraries(MyLauncher Qt6::Widgets)
