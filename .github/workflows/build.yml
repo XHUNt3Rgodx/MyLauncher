@@ -3,24 +3,30 @@ name: Build MyLauncher
 on:
   push:
     branches: [ main ]
-  pull_request:
 
 jobs:
   build-mac:
     runs-on: macos-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install Qt
-        run: brew install qt
+        run: |
+          brew update
+          brew install qt
 
-      - name: Configure CMake
+      - name: Configure
         run: cmake -S . -B build
 
-      - name: Build project
+      - name: Build
         run: cmake --build build --config Release
 
-      - name: Upload macOS artifact
+      - name: Deploy Qt
+        run: |
+          macdeployqt build/MyLauncher.app
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: MyLauncher-mac
