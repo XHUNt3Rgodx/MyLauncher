@@ -18,7 +18,7 @@ jobs:
       - name: Install Qt dependencies
         run: |
           brew update
-          brew install qt@6 qtsvg qtpdf qtvirtualkeyboard
+          brew install qt@6 qtsvg qpdf qtvirtualkeyboard
 
       # 3. Настраиваем переменные окружения для Qt
       - name: Setup Qt environment
