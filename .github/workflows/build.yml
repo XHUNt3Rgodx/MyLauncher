@@ -1,4 +1,4 @@
-name: Build MyLauncher
+name: Build MyLauncher (macOS)
 
 on:
   push:
@@ -12,22 +12,19 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Qt
-        run: |
-          brew update
-          brew install qt
+        run: brew install qt
 
-      - name: Configure
-        run: cmake -S . -B build
+      - name: Configure with Xcode
+        run: cmake -S . -B build -G Xcode
 
-      - name: Build
+      - name: Build app
         run: cmake --build build --config Release
 
       - name: Deploy Qt
-        run: |
-          macdeployqt build/MyLauncher.app
+        run: macdeployqt build/Release/MyLauncher.app
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: MyLauncher-mac
-          path: build/MyLauncher.app
+          path: build/Release/MyLauncher.app
