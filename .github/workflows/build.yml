@@ -1,9 +1,7 @@
-name: Build MyLauncher (macOS Full Qt)
+name: Build MyLauncher (.app with online Qt)
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 
 jobs:
@@ -11,53 +9,46 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      # 1. Скачиваем код
+      # 1. Checkout
       - uses: actions/checkout@v4
 
-      # 2. Устанавливаем Qt через Homebrew
-      - name: Install Qt dependencies
+      # 2. Download Qt SDK (пример: Qt 6.6.2 clang_64)
+      - name: Download Qt SDK
         run: |
-          brew update
-          brew install qt@6 qtsvg qpdf qtvirtualkeyboard
+          mkdir -p ThirdParty/Qt
+          cd ThirdParty/Qt
+          curl -L -o qt6.tar.xz https://download.qt.io/official_releases/qt/6.6/6.6.2/qt-opensource-mac-x64-6.6.2.dmg
+          # Преобразуем dmg в mount
+          hdiutil attach qt-opensource-mac-x64-6.6.2.dmg
+          cp -R /Volumes/Qt/Qt/6.6.2/clang_64 ./clang_64
+          hdiutil detach /Volumes/Qt
 
-      # 3. Настраиваем переменные окружения для Qt
+      # 3. Set Qt environment
       - name: Setup Qt environment
         run: |
-          export PATH="/opt/homebrew/opt/qt@6/bin:$PATH"
-          export DYLD_FRAMEWORK_PATH="/opt/homebrew/opt/qt@6/lib"
-          export PKG_CONFIG_PATH="/opt/homebrew/opt/qt@6/lib/pkgconfig"
+          export Qt6_DIR="${GITHUB_WORKSPACE}/ThirdParty/Qt/clang_64/lib/cmake/Qt6"
+          export PATH="${GITHUB_WORKSPACE}/ThirdParty/Qt/clang_64/bin:$PATH"
           echo "Qt environment set"
 
-      # 4. Конфигурируем проект через CMake с Xcode генератором
-      - name: Configure CMake (Xcode)
+      # 4. Configure CMake with Xcode generator
+      - name: Configure CMake
         run: |
           mkdir -p build
           cd build
-          cmake -G Xcode ..
+          cmake -G Xcode -DCMAKE_PREFIX_PATH="${Qt6_DIR}" -DCMAKE_OSX_ARCHITECTURES=arm64 ..
 
-      # 5. Собираем проект в Release
+      # 5. Build MyLauncher
       - name: Build MyLauncher
         run: |
           cmake --build build --config Release
 
-      # 6. Проверяем, что .app создан
-      - name: List build/Release
-        run: |
-          ls -la build/Release/
-
-      # 7. Деплойим Qt фреймворки в .app через macdeployqt
-      - name: Deploy Qt into MyLauncher.app
+      # 6. Deploy Qt into .app
+      - name: Deploy Qt
         run: |
           cd build/Release
-          macdeployqt MyLauncher.app -verbose=3
+          "${GITHUB_WORKSPACE}/ThirdParty/Qt/clang_64/bin/macdeployqt" MyLauncher.app -verbose=3
 
-      # 8. Проверяем, что все фреймворки подключены
-      - name: Check linked frameworks
-        run: |
-          cd build/Release
-          otool -L MyLauncher.app/Contents/MacOS/MyLauncher
-
-      # 9. Загружаем готовый .app как артефакт
+      # 7. Upload artifact
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
