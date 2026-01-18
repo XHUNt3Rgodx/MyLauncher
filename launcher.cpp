@@ -1,18 +1,17 @@
 #include "launcher.h"
 #include <QPushButton>
 #include <QVBoxLayout>
-#include <QMessageBox>
 
 Launcher::Launcher(QWidget *parent) : QWidget(parent)
 {
     setWindowTitle("MyLauncher");
     setFixedSize(400, 200);
 
-    QPushButton *startButton = new QPushButton("Start Game", this);
+    QPushButton *btn = new QPushButton("Start", this);
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(startButton);
+    layout->addWidget(btn);
 
-    connect(startButton, &QPushButton::clicked, this, &Launcher::onStartClicked);
+    connect(btn, &QPushButton::clicked, this, &Launcher::onStartClicked);
 }
 
 Launcher::~Launcher()
@@ -21,7 +20,4 @@ Launcher::~Launcher()
 
 void Launcher::onStartClicked()
 {
-    QMessageBox::information(this, "Launcher", "Запуск игры...");
-    emit startGame();
 }
-
