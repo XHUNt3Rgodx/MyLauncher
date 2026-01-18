@@ -14,7 +14,7 @@ jobs:
       - name: Install Qt
         run: |
           brew update
-          brew install qt qt-svg qt-pdf qt-virtualkeyboard
+          brew install qt qtsvg qtpdf qtvirtualkeyboard
 
       - name: Configure with Xcode
         run: cmake -S . -B build -G Xcode
