@@ -1,21 +1,21 @@
+#ifndef LAUNCHER_H
+#define LAUNCHER_H
+
 #include <QWidget>
-#include <QPushButton>
-#include <QLineEdit>
-#include <QVBoxLayout>
-#include <QFileDialog>
-#include <QSettings>
 
-class Launcher : public QWidget {
+class Launcher : public QWidget
+{
     Q_OBJECT
+
 public:
-    Launcher(QWidget *parent = nullptr);
+    explicit Launcher(QWidget *parent = nullptr);
+    ~Launcher();
 
-private:
-    QLineEdit *pathEdit;
-    QPushButton *browseButton;
-    QPushButton *playButton;
+signals:
+    void startGame();
 
-private slots:
-    void browse();
-    void play();
+public slots:
+    void onStartClicked();
 };
+
+#endif
