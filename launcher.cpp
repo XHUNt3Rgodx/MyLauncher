@@ -1,43 +1,27 @@
 #include "launcher.h"
-#include <QProcess>
+#include <QPushButton>
+#include <QVBoxLayout>
 #include <QMessageBox>
 
-Launcher::Launcher(QWidget *parent) : QWidget(parent) {
-    setWindowTitle("Nozdor Launcher");
-    resize(400, 120);
+Launcher::Launcher(QWidget *parent) : QWidget(parent)
+{
+    setWindowTitle("MyLauncher");
+    setFixedSize(400, 200);
 
-    pathEdit = new QLineEdit(this);
-    browseButton = new QPushButton("Обзор", this);
-    playButton = new QPushButton("Играть", this);
+    QPushButton *startButton = new QPushButton("Start Game", this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(startButton);
 
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(pathEdit);
-    layout->addWidget(browseButton);
-    layout->addWidget(playButton);
-    setLayout(layout);
-
-    QSettings settings("Nozdor", "Launcher");
-    pathEdit->setText(settings.value("wow_path").toString());
-
-    connect(browseButton, &QPushButton::clicked, this, &Launcher::browse);
-    connect(playButton, &QPushButton::clicked, this, &Launcher::play);
+    connect(startButton, &QPushButton::clicked, this, &Launcher::onStartClicked);
 }
 
-void Launcher::browse() {
-    QString fileName = QFileDialog::getOpenFileName(this, "Выберите WoW.app или WoW.exe");
-    if (!fileName.isEmpty()) {
-        pathEdit->setText(fileName);
-        QSettings settings("Nozdor", "Launcher");
-        settings.setValue("wow_path", fileName);
-    }
+Launcher::~Launcher()
+{
 }
 
-void Launcher::play() {
-    QString path = pathEdit->text();
-    if (path.isEmpty()) {
-        QMessageBox::warning(this, "Ошибка", "Выберите путь к WoW.");
-        return;
-    }
-
-    QProcess::startDetached(path);
+void Launcher::onStartClicked()
+{
+    QMessageBox::information(this, "Launcher", "Запуск игры...");
+    emit startGame();
 }
+
